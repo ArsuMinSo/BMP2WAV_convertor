@@ -8,7 +8,7 @@ bmp = BMPFormat()
 wav = WAVFormat()
 
 
-header, sound = wav.load_wav(path="./media/wav/32bit.wav")
+header, sound = wav.load_wav(path="./media/wav/u8bit.wav")
 dataFrame = pd.DataFrame.from_dict(header, orient="Index", columns=["Value"])
 print(dataFrame, end= "\n\n")
 print(sound.shape, end= "\n\n")
