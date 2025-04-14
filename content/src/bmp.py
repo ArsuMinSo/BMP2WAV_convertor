@@ -5,28 +5,51 @@ from matplotlib import pyplot as plt
 
 class BMPFormat:
     def __init__(self):
+        """Initializes the BMPFormat class for handling BMP file loading and saving."""
         pass
 
 
     def loadBMP(self, path:str) -> tuple:
-        if path.endswith(".bmp"):
-            with open(path, "rb") as file:
-                header_offset = 54
-                bmp_header = self._loadHeader(file.read(header_offset))
+        """
+        Loads a BMP image from the specified file path and decodes it into a NumPy array.
 
-                palette_offset = bmp_header["Palette offset"] - header_offset
-                palette = self._loadPalette(file.read(palette_offset), bmp_header)
+        Args:
+            path (str): Path to the BMP file.
 
-                
-                pixel_plane = self._convert_bmp_to_numpy(file.read(), palette, header=bmp_header)
-                
-        return (bmp_header, palette, pixel_plane)
+        Returns:
+            tuple: A tuple containing:
+                - dict: Header information.
+                - np.ndarray: Color palette (if applicable), otherwise None.
+                - np.ndarray: Pixel data as a 3D NumPy array with shape (H, W, 4) in RGBA format.
+        
+        Raises:
+            Exception: If file extension is not '.bmp' or the BMP format is unsupported.
+        """
+        if not path.endswith(".bmp"):
+            raise ValueError("Unsupported file type. Only .bmp files are allowed.")
+        
+        with open(path, "rb") as file:
+            header_offset = 54
+            bmp_header = self._loadHeader(file.read(header_offset))
+
+            palette_offset = bmp_header["Palette offset"] - header_offset
+            palette = self._loadPalette(file.read(palette_offset), bmp_header)                
+            pixel_plane = self._convert_bmp_to_numpy(file.read(), palette, header=bmp_header)
+            return bmp_header, palette, pixel_plane
 
 
     def _loadHeader(self, file:bytearray) -> dict:
         """
-        Reads and extracts header information from the BMP file.
-        Only supports standard BMP headers of size 40 bytes.
+        Parses the BMP file header (first 54 bytes) and extracts metadata.
+
+        Args:
+            file (bytearray): The first 54 bytes of a BMP file.
+
+        Returns:
+            dict: Extracted BMP header fields with their corresponding values.
+
+        Raises:
+            Exception: If the BMP header size is not 40 bytes (BITMAPINFOHEADER).
         """
         header_size = int.from_bytes(file[14:18], byteorder="little", signed=True)
         
@@ -56,7 +79,15 @@ class BMPFormat:
 
     def _loadPalette(self, file, header) -> np.array:
         """
-        Extracts the color palette from BMP file if applicable (for 1, 4, and 8-bit BMPs).
+        Extracts the color palette from BMP data (used in 1, 4, and 8-bit BMPs).
+
+        Args:
+            file (bytes): Raw palette data.
+            header (dict): BMP header containing information like bits per pixel.
+
+        Returns:
+            np.ndarray: NumPy array of shape (N, 4) containing RGBA values of the palette,
+                        or None if the image doesn't use a palette.
         """
         if header["Bits per pixel"] in [1, 4, 8]:
             palette_hex = file
@@ -74,7 +105,17 @@ class BMPFormat:
 
 
     def _convert_bmp_to_numpy(self, file, palette, header):
-        """Converts BMP pixel data into a NumPy array."""
+        """
+        Converts the pixel data of a BMP image into a NumPy array.
+
+        Args:
+            file (bytes): Raw BMP pixel data.
+            palette (np.ndarray or None): Color palette (if applicable).
+            header (dict): Parsed BMP header.
+
+        Returns:
+            np.ndarray: Image pixel array in RGBA format.
+        """
         pixel_data = file
         width, height = header["Width"], header["Height"]
         bpp = header["Bits per pixel"]
@@ -90,7 +131,16 @@ class BMPFormat:
 
 
     def get_scanline_size(self, width, bpp):
-        """Calculates the BMP scanline size (padded to 4-byte boundaries)."""
+        """
+        Computes the size of one scanline in bytes (padded to 4-byte boundaries).
+
+        Args:
+            width (int): Image width in pixels.
+            bpp (int): Bits per pixel.
+
+        Returns:
+            int: Number of bytes per scanline.
+        """
         bits_per_row = width * bpp
         scanline = ((bits_per_row + 31) // 32) * 4
         
@@ -98,7 +148,20 @@ class BMPFormat:
 
 
     def decode_indexed_image(self, pixel_data, palette, width, height, bpp, scanline_size):
-        """Decodes BMP images with a color palette (1, 4, 8-bit) using scanlines."""
+        """
+        Decodes an indexed BMP image (1, 4, or 8 bits per pixel) into a full-color image.
+
+        Args:
+            pixel_data (bytes): Encoded pixel data.
+            palette (np.ndarray): Palette used to map indices to colors.
+            width (int): Image width.
+            height (int): Image height.
+            bpp (int): Bits per pixel.
+            scanline_size (int): Number of bytes per scanline.
+
+        Returns:
+            np.ndarray: Decoded image as a 3D NumPy array (H, W, 4).
+        """
         pixel_plane = np.zeros([height, width, 4], dtype=np.uint8)
 
         byte_index = 0
@@ -117,7 +180,18 @@ class BMPFormat:
 
 
     def decode_indexed_row(self, row_data, width, bpp, palette_info):
-        """Decodes a single scanline for indexed BMP images."""
+        """
+        Decodes one scanline of an indexed BMP image into RGBA pixels.
+
+        Args:
+            row_data (bytes): One row of encoded pixel data.
+            width (int): Number of pixels in the row.
+            bpp (int): Bits per pixel (1, 4, or 8).
+            palette_info (np.ndarray): Palette used for decoding.
+
+        Returns:
+            np.ndarray: Row of pixels as RGBA values.
+        """
         row = np.zeros([width, 4], dtype=np.uint8)
         byte_index = 0
         bit_offset = 0
@@ -145,7 +219,19 @@ class BMPFormat:
 
 
     def decode_direct_image(self, pixel_data, width, height, bpp, scanline_size):
-        """Decodes BMP images without a palette (24, 32-bit) using scanlines."""
+        """
+        Decodes a BMP image that stores direct RGB(A) values (24 or 32 bits per pixel).
+
+        Args:
+            pixel_data (bytes): Encoded image data.
+            width (int): Image width.
+            height (int): Image height.
+            bpp (int): Bits per pixel (24 or 32).
+            scanline_size (int): Number of bytes per scanline.
+
+        Returns:
+            np.ndarray: Image in RGBA format.
+        """
         pixel_plane = np.zeros([height, width, 4], dtype=np.uint8)
 
         byte_index = 0
@@ -158,7 +244,17 @@ class BMPFormat:
 
     
     def decode_direct_row(self, row_data, width, bpp):
-        """Decodes a single scanline for direct color BMP images."""
+        """
+        Decodes one scanline of a direct color BMP image.
+
+        Args:
+            row_data (bytes): Raw row data.
+            width (int): Number of pixels in the row.
+            bpp (int): Bits per pixel (24 or 32).
+
+        Returns:
+            np.ndarray: Row of pixels in RGBA format.
+        """
         row = np.zeros([width, 4], dtype=np.uint8)
         bytes_per_pixel = bpp // 8
 
@@ -171,6 +267,16 @@ class BMPFormat:
         return row
     
     def saveBMP(self, pixel_array, path) -> str:
+        """
+        Saves a 24-bit BMP image to disk from a pixel array (ignores alpha channel).
+
+        Args:
+            pixel_array (np.ndarray): A NumPy array with shape (H, W, 3 or 4).
+            path (str): Output file path.
+
+        Returns:
+            str: Path to the saved file.
+        """
         with open(path, "wb") as file:
             bmp_data = b""
             
@@ -212,8 +318,16 @@ class BMPFormat:
 
 
     def display_image(self, pixel_array, wav_data = None):
-        """Displays the decoded BMP image using Matplotlib."""
-        
+        """
+        Displays the loaded BMP image using matplotlib. Optionally plots WAV data if provided.
+
+        Args:
+            pixel_array (np.ndarray): Image pixel array to be displayed.
+            wav_data (np.ndarray, optional): Optional waveform data to plot below the image.
+
+        Returns:
+            None
+        """
         fig, ax = plt.subplots(nrows=2, figsize=(8, 6))
 
         ax[0].imshow(pixel_array[::-1])
