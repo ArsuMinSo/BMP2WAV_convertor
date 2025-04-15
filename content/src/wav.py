@@ -27,7 +27,7 @@ class WAVFormat:
         
         header = self._loadHeader(raw_data)
         sound_data = self.decode_wav(header, raw_data)
-        return (header, sound_data)
+        return header, sound_data
 
     def _loadHeader(self, file: bytes) -> dict:
         """
@@ -86,6 +86,8 @@ class WAVFormat:
             dtype = np.uint8
         elif header["Bits per sample"] == 16:
             dtype = np.int16
+        elif header["Bits per sample"] == 24:
+            dtype = np.int32
         elif header["Bits per sample"] == 32:
             dtype = np.int32
         else:
@@ -178,3 +180,8 @@ class WAVFormat:
                 file.write(header + data)
 
         return path
+    
+    def print_file_info(self, info):
+        import pandas as pd
+        dataframe = pd.DataFrame.from_dict(info, orient="index", columns=["Value"])
+        print(dataframe)

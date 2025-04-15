@@ -9,7 +9,7 @@ class BMPFormat:
         pass
 
 
-    def loadBMP(self, path:str) -> tuple:
+    def load_bmp(self, path:str) -> tuple:
         """
         Loads a BMP image from the specified file path and decodes it into a NumPy array.
 
@@ -30,15 +30,15 @@ class BMPFormat:
         
         with open(path, "rb") as file:
             header_offset = 54
-            bmp_header = self._loadHeader(file.read(header_offset))
+            bmp_header = self.loadHeader(file.read(header_offset))
 
             palette_offset = bmp_header["Palette offset"] - header_offset
-            palette = self._loadPalette(file.read(palette_offset), bmp_header)                
-            pixel_plane = self._convert_bmp_to_numpy(file.read(), palette, header=bmp_header)
+            palette = self.loadPalette(file.read(palette_offset), bmp_header)                
+            pixel_plane = self.convert_bmp_to_numpy(file.read(), palette, header=bmp_header)
             return bmp_header, palette, pixel_plane
 
 
-    def _loadHeader(self, file:bytearray) -> dict:
+    def loadHeader(self, file:bytearray) -> dict:
         """
         Parses the BMP file header (first 54 bytes) and extracts metadata.
 
@@ -77,7 +77,7 @@ class BMPFormat:
         return header
 
 
-    def _loadPalette(self, file, header) -> np.array:
+    def loadPalette(self, file, header) -> np.array:
         """
         Extracts the color palette from BMP data (used in 1, 4, and 8-bit BMPs).
 
@@ -104,7 +104,7 @@ class BMPFormat:
         return palette
 
 
-    def _convert_bmp_to_numpy(self, file, palette, header):
+    def convert_bmp_to_numpy(self, file, palette, header):
         """
         Converts the pixel data of a BMP image into a NumPy array.
 
@@ -317,26 +317,39 @@ class BMPFormat:
         return ""
 
 
-    def display_image(self, pixel_array, wav_data = None):
+    def display_image(self, bmp_data, wav_data = None):
         """
         Displays the loaded BMP image using matplotlib. Optionally plots WAV data if provided.
 
         Args:
-            pixel_array (np.ndarray): Image pixel array to be displayed.
+            bmp_data (np.ndarray): Image pixel array to be displayed.
             wav_data (np.ndarray, optional): Optional waveform data to plot below the image.
 
         Returns:
             None
         """
-        fig, ax = plt.subplots(nrows=2, figsize=(8, 6))
+        fig, ax = plt.subplots(nrows=2 if wav_data is not None else 1)
 
-        ax[0].imshow(pixel_array[::-1])
-        ax[0].set_ylim(-20, pixel_array.shape[0] + 20)
-        ax[0].set_xlim(-20, pixel_array.shape[1] + 20)
-        ax[0].set_title("Decoded BMP Image")
+        if wav_data is not None:
+            ax[0].imshow(bmp_data[::-1])
+            ax[0].set_ylim(-20, bmp_data.shape[0] + 20)
+            ax[0].set_xlim(-20, bmp_data.shape[1] + 20)
+            ax[0].set_title("Decoded BMP Image")
 
-        if wav_data != None:
             ax[1].plot(np.arange(0, wav_data.shape[0], dtype=int), wav_data)
+            ax[1].set_title("Reconstructed WAV wave")
 
+        else:
+            ax.imshow(bmp_data[::-1])
+            ax.set_ylim(-20, bmp_data.shape[0] + 20)
+            ax.set_xlim(-20, bmp_data.shape[1] + 20)
+            ax.set_title("Decoded BMP Image")
+
+        plt.tight_layout()
         plt.show()
-
+    
+    
+    def print_file_info(self, info):
+        import pandas as pd
+        dataframe = pd.DataFrame.from_dict(info, orient="index", columns=["Value"])
+        print(dataframe)
