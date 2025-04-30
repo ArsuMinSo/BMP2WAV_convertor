@@ -1,10 +1,10 @@
 # BMP2WAV Convertor
 
-## 5. Funkce Převodníku
+## Funkce Převodníku
 
-Tato kapitola popisuje konkrétní funkce, které aplikace poskytuje, a technologické schopnosti, které umožňují obousměrný převod mezi obrazovými a zvukovými daty, jejich generování a vizualizaci.
+Funkce, které aplikace poskytuje, a technologické schopnosti, které umožňují obousměrný převod mezi obrazovými a zvukovými daty, jejich generování a vizualizaci.
 
-### 5.1 Generace Náhodného Obrázku
+### Generace Náhodného Obrázku
 
 Aplikace umožňuje generovat náhodné rastrové obrázky ve formátu BMP s definovanou šířkou a výškou.
 
@@ -31,7 +31,7 @@ py ./main.py -gb 100 100 ./content/media/out/random.bmp -s
 
 ---
 
-### 5.2 Generace Náhodného Zvuku
+### Generace Náhodného Zvuku
 
 Aplikace umožňuje generovat náhodný zvukový signál ve formátu WAV.
 
@@ -59,7 +59,7 @@ py ./main.py -gw 1000 ./content/media/out/random_wave.wav -s
 
 ---
 
-### 5.3 Generace Sinusového Signálu
+### Generace Sinusového Signálu
 
 Aplikace umožňuje vytvořit čistý sinusový signál ve formátu WAV.
 
@@ -83,7 +83,7 @@ py ./main.py -gw 1000 ./content/media/out/sine_wave.wav -f 440 -s
 
 ---
 
-### 5.4 Převod BMP na WAV
+### Převod BMP na WAV
 
 Aplikace umožňuje převod rastrového obrázku ve formátu BMP na zvukový soubor WAV.
 
@@ -106,7 +106,7 @@ python main.py --convert ./content/media/bmp/1bit.bmp ./content/media/out/1bit.w
 
 ---
 
-### 5.5 Převod WAV na BMP
+### Převod WAV na BMP
 
 Aplikace umožňuje převést zvukový soubor ve formátu WAV zpět na rastrový obrázek BMP.
 
@@ -126,7 +126,7 @@ py ./main.py --convert ./content/media/out/1bit.wav ./content/media/out/1bit.bmp
 
 ---
 
-### 5.6 Zobrazování Dat Souborů
+### Zobrazování Dat Souborů
 
 Aplikace umožňuje vizualizaci dat z WAV a BMP souborů.
 
