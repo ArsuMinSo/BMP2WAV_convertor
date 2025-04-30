@@ -385,7 +385,8 @@ FodyWeavers.xsd
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
-./content/src/bckp.py
+!.content/src/bckp.py
+!.content/src/merge.py
 
 # Local History for Visual Studio Code
 .history/

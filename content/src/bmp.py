@@ -1,15 +1,13 @@
 import numpy as np
-from numpy import sqrt, ceil
-import math
-from matplotlib import pyplot as plt
+
+DEFAULT_DIMENSIONS = (0, 0)
 
 class BMPFormat:
     def __init__(self):
         """Initializes the BMPFormat class for handling BMP file loading and saving."""
         pass
 
-
-    def load_bmp(self, path:str) -> tuple:
+    def load_bmp(self, path: str) -> tuple:
         """
         Loads a BMP image from the specified file path and decodes it into a NumPy array.
 
@@ -21,24 +19,29 @@ class BMPFormat:
                 - dict: Header information.
                 - np.ndarray: Color palette (if applicable), otherwise None.
                 - np.ndarray: Pixel data as a 3D NumPy array with shape (H, W, 4) in RGBA format.
-        
+
         Raises:
             Exception: If file extension is not '.bmp' or the BMP format is unsupported.
         """
         if not path.endswith(".bmp"):
             raise ValueError("Unsupported file type. Only .bmp files are allowed.")
-        
-        with open(path, "rb") as file:
-            header_offset = 54
-            bmp_header = self.loadHeader(file.read(header_offset))
 
-            palette_offset = bmp_header["Palette offset"] - header_offset
-            palette = self.loadPalette(file.read(palette_offset), bmp_header)                
-            pixel_plane = self.convert_bmp_to_numpy(file.read(), palette, header=bmp_header)
-            return bmp_header, palette, pixel_plane
+        try:
+            with open(path, "rb") as file:
+                with open(path, "rb") as file:
+                    header_offset = 54
+                    bmp_header = self.loadHeader(file.read(header_offset))
 
+                    palette_offset = bmp_header["Palette offset"] - header_offset
+                    palette = self.loadPalette(file.read(palette_offset), bmp_header)
+                    pixel_plane = self.convert_bmp_to_numpy(file.read(), palette, header=bmp_header)
+                    return bmp_header, palette, pixel_plane
+        except FileNotFoundError:
+            raise FileNotFoundError(f"File not found: {path}")
+        except IOError:
+            raise IOError(f"Error reading file: {path}")  
 
-    def loadHeader(self, file:bytearray) -> dict:
+    def loadHeader(self, file: bytearray) -> dict:
         """
         Parses the BMP file header (first 54 bytes) and extracts metadata.
 
@@ -52,9 +55,9 @@ class BMPFormat:
             Exception: If the BMP header size is not 40 bytes (BITMAPINFOHEADER).
         """
         header_size = int.from_bytes(file[14:18], byteorder="little", signed=True)
-        
+
         if header_size != 40:
-            raise Exception("Unsupported BMP format, only 1, 2, 4, 8 or 24-bit BMP with standard header is supported.")
+            raise Exception("Unsupported BMP format, only BMP with standard header is supported.")
 
         header = {
             "BMP identifier": file[:2].decode("utf-8"),
@@ -68,14 +71,13 @@ class BMPFormat:
             "Bits per pixel": int.from_bytes(file[28:30], byteorder="little", signed=True),
             "Compression": int.from_bytes(file[30:34], byteorder="little", signed=True),
             "Image size": int.from_bytes(file[34:38], byteorder="little", signed=True),
-            "Horizontal resolution": round(int.from_bytes(file[38:42], byteorder="little", signed=True)/100 *2.54, 0),
-            "Vertical resolution": round(int.from_bytes(file[42:46], byteorder="little", signed=True)/100 *2.54, 0),
+            "Horizontal resolution": round(int.from_bytes(file[38:42], byteorder="little", signed=True)/100 * 2.54, 0),
+            "Vertical resolution": round(int.from_bytes(file[42:46], byteorder="little", signed=True)/100 * 2.54, 0),
             "Number of colors in the palette": int.from_bytes(file[46:50], byteorder="little", signed=True),
             "Important colors": int.from_bytes(file[50:54], byteorder="little", signed=True),
         }
 
         return header
-
 
     def loadPalette(self, file, header) -> np.array:
         """
@@ -96,13 +98,15 @@ class BMPFormat:
             palette = np.zeros([num_colors, 4], dtype=np.uint8)
 
             for i in range(0, len(palette_hex), 4):
-                B, G, R, U  = palette_hex[i], palette_hex[i+1], palette_hex[i+2], palette_hex[i+3]
-                palette[i//4] = [R, G, B, 255 - U]
+                B = palette_hex[i]
+                G = palette_hex[i + 1]
+                R = palette_hex[i + 2]
+                U = palette_hex[i + 3]
+                palette[i // 4] = [R, G, B, U]
         else:
             palette = None
 
         return palette
-
 
     def convert_bmp_to_numpy(self, file, palette, header):
         """
@@ -126,9 +130,8 @@ class BMPFormat:
             pixel_info = self.decode_indexed_image(pixel_data, palette, width, height, bpp, scanline_size)
         elif bpp in [24, 32]:
             pixel_info = self.decode_direct_image(pixel_data, width, height, bpp, scanline_size)
-        
-        return pixel_info
 
+        return pixel_info
 
     def get_scanline_size(self, width, bpp):
         """
@@ -143,9 +146,8 @@ class BMPFormat:
         """
         bits_per_row = width * bpp
         scanline = ((bits_per_row + 31) // 32) * 4
-        
-        return scanline
 
+        return scanline
 
     def decode_indexed_image(self, pixel_data, palette, width, height, bpp, scanline_size):
         """
@@ -166,7 +168,6 @@ class BMPFormat:
 
         byte_index = 0
         for y in range(height):
-            print(y)
             row_data = pixel_data[byte_index:byte_index + scanline_size]
 
             if bpp == 8:
@@ -175,9 +176,8 @@ class BMPFormat:
             row_pixels = self.decode_indexed_row(row_data, width, bpp, palette)
             pixel_plane[height - 1 - y] = row_pixels
             byte_index += scanline_size
-            
-        return pixel_plane
 
+        return pixel_plane
 
     def decode_indexed_row(self, row_data, width, bpp, palette_info):
         """
@@ -198,8 +198,6 @@ class BMPFormat:
 
         for x in range(width):
             if bpp == 8:
-                print(f"width: {width}, len(row_data): {len(row_data)}")
-
                 index = row_data[x]
             else:
                 if bit_offset == 0:
@@ -216,7 +214,6 @@ class BMPFormat:
             row[x] = palette_info[index]
 
         return row
-
 
     def decode_direct_image(self, pixel_data, width, height, bpp, scanline_size):
         """
@@ -242,7 +239,6 @@ class BMPFormat:
 
         return pixel_plane
 
-    
     def decode_direct_row(self, row_data, width, bpp):
         """
         Decodes one scanline of a direct color BMP image.
@@ -261,11 +257,11 @@ class BMPFormat:
         for x in range(width):
             pixel_offset = x * bytes_per_pixel
             B, G, R = row_data[pixel_offset:pixel_offset + 3]
-            A = row_data[pixel_offset + 3] if bpp == 32 else 255
+            A = row_data[pixel_offset + 3] if bpp == 32 else 0
             row[x] = [R, G, B, A]
 
         return row
-    
+
     def saveBMP(self, pixel_array, path) -> str:
         """
         Saves a 24-bit BMP image to disk from a pixel array (ignores alpha channel).
@@ -279,7 +275,7 @@ class BMPFormat:
         """
         with open(path, "wb") as file:
             bmp_data = b""
-            
+
             height, width, depth = pixel_array.shape  # POZOR: pořadí je (H, W, C)
             row_padding = (4 - (width * 3) % 4) % 4  # BMP s 24 bpp (bez alpha), 3 bajty na pixel
 
@@ -316,40 +312,72 @@ class BMPFormat:
             return path
         return ""
 
-
-    def display_image(self, bmp_data, wav_data = None):
+    def display_image(self, bmp_data, wav_data=None, show_axes=True, test_mode=False):
         """
         Displays the loaded BMP image using matplotlib. Optionally plots WAV data if provided.
 
         Args:
             bmp_data (np.ndarray): Image pixel array to be displayed.
             wav_data (np.ndarray, optional): Optional waveform data to plot below the image.
+            show_axes (bool): If True, shows axes on the plot. Default is True.
+            test_mode (bool): If True, saves plot to file instead of showing.
 
         Returns:
             None
         """
-        fig, ax = plt.subplots(nrows=2 if wav_data is not None else 1)
+        import matplotlib.pyplot as plt
+        import os
+        has_wave = wav_data is not None
+        fig, ax = plt.subplots(nrows=2 if has_wave else 1, figsize=(8, 6))
 
-        if wav_data is not None:
-            ax[0].imshow(bmp_data[::-1])
-            ax[0].set_ylim(-20, bmp_data.shape[0] + 20)
-            ax[0].set_xlim(-20, bmp_data.shape[1] + 20)
-            ax[0].set_title("Decoded BMP Image")
+        if not has_wave:
+            ax = [ax]  # wrap single Axes into a list for consistency
 
+        ax[0].imshow(bmp_data[:, :, :3])
+        ax[0].set_title("Decoded BMP Image")
+        if not show_axes:
+            ax[0].set_xticks([])
+            ax[0].set_yticks([])
+
+        if has_wave:
             ax[1].plot(np.arange(0, wav_data.shape[0], dtype=int), wav_data)
             ax[1].set_title("Reconstructed WAV wave")
-
-        else:
-            ax.imshow(bmp_data[::-1])
-            ax.set_ylim(-20, bmp_data.shape[0] + 20)
-            ax.set_xlim(-20, bmp_data.shape[1] + 20)
-            ax.set_title("Decoded BMP Image")
+            if not show_axes:
+                ax[1].set_xticks([])
+                ax[1].set_yticks([])
 
         plt.tight_layout()
-        plt.show()
-    
-    
+
+        if test_mode:
+            os.makedirs("./content/media/out/test_mode/", exist_ok=True)
+            plt.savefig("./content/media/out/test_mode/display_bmp_output.png")
+            plt.close(fig)
+        else:
+            plt.show()
+
+
     def print_file_info(self, info):
-        import pandas as pd
-        dataframe = pd.DataFrame.from_dict(info, orient="index", columns=["Value"])
-        print(dataframe)
+            """
+            Prints the BMP file information in a tabular format using pandas.
+
+            Parameters:
+                info (dict): Dictionary containing BMP file information.
+            """
+            import pandas as pd
+            dataframe = pd.DataFrame.from_dict(info, orient="index", columns=["Value"])
+            print(dataframe)
+
+    def generateRandomPic(self, width: int, height: int, file: str) -> str:
+            """
+            Generates a random RGBA image and saves it as a BMP file.
+
+            Parameters:
+                width (int): Width of the image.
+                height (int): Height of the image.
+                file (str): Output file path for BMP.
+
+            Returns:
+                str: The path to the saved BMP image.
+            """
+            pixels = np.random.randint(0, 256, size=(height, width, 4), dtype=np.uint8)
+            return self.saveBMP(pixel_array=pixels, path=file)
