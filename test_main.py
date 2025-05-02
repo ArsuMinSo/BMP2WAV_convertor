@@ -1,6 +1,11 @@
 import subprocess
 import os
 
+
+# Vytvoření testovací složky pro výstupní soubory
+if not os.path.exists("./content/media/out/test/"):
+    os.makedirs("./content/media/out/test/", exist_ok=True)
+
 # Test pro generování náhodného BMP souboru
 def test_generate_random_bmp():
     result = subprocess.run(

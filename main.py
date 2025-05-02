@@ -37,34 +37,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    # Example usage:
-    # Generate a random BMP image with dimensions 100x100 and save to output.bmp
-    # python parser.py --generate-bmp 100 100 output.bmp
-
-    # Generate a random WAV file with 44100 samples and save to output.wav
-    # python parser.py --generate-wav 44100 output.wav
-
-    # Generate a sine wave WAV file with 44100 samples at 440Hz and save to output.wav
-    # python parser.py --generate-wav 44100 output.wav --freq 440
-
-    # Convert a BMP file to a WAV file
-    # python parser.py --convert input.bmp output.wav
-
-    # Convert a WAV file to a BMP file with dimensions 100x100
-    # python parser.py --convert input.wav output.bmp --dimensions 100 100
-
-    # Display metadata about a BMP file
-    # python parser.py --info input.bmp
-
-    # Display metadata about a WAV file
-    # python parser.py --info input.wav
-
-    # Enable verbose mode for detailed output
-    # python parser.py --generate-bmp 100 100 output.bmp --verbose
-
-    # Show plots in matplotlib without axes
-    # python parser.py --info input.bmp --show
-
-    # Show plots in matplotlib with axes
-    # python parser.py --info input.bmp --show-with-axes

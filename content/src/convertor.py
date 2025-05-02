@@ -16,25 +16,20 @@ class Convertor:
         """
         Converts a flat array of pixel data (RGBA) to a flat array of audio samples (int32).
         Parameters:
-            flat_pixels (np.ndarray): A flat array of pixel data in RGBA format.
+            flat_pixels (np.ndarray): A flat array of pixel data in RGBA format (shape: [N, 4]).
 
         Returns:
             np.ndarray: A flat array of audio samples in int32 format.
         """
-        length = len(flat_pixels)
-        data = np.zeros([length])
+        flat_pixels = flat_pixels.astype(np.uint8)
+        R = flat_pixels[:, 0].astype(np.uint32)
+        G = flat_pixels[:, 1].astype(np.uint32)
+        B = flat_pixels[:, 2].astype(np.uint32)
+        A = flat_pixels[:, 3].astype(np.uint32)
 
-        # Convert RGBA to int32 format
-        for pixel in range(length):
-            R, G, B, A = flat_pixels[pixel]
-            rgba = (np.left_shift(R.astype(np.int64), 24) |
-                    np.left_shift(G.astype(np.int64), 16) |
-                    np.left_shift(B.astype(np.int64), 8) |
-                    A.astype(np.int64))
-            
-            value = np.int32(rgba - (2**31 - 1))
-            data[pixel] = np.int32(value)
-        return data
+        packed = (A << 24) | (B << 16) | (G << 8) | R
+        return packed.astype(np.int32)
+
 
     def convert_wavnp_to_bmpnp(self, flat_wav):
         """
@@ -43,18 +38,16 @@ class Convertor:
             flat_wav (np.ndarray): A flat array of audio samples in int32 format.
 
         Returns:
-            np.ndarray: A flat array of pixel data in RGBA format.
+            np.ndarray: A flat array of pixel data in RGBA format (shape: [N, 4]).
         """
-        length = len(flat_wav)
-        data = np.zeros([length, 4])
+        flat_wav = flat_wav.astype(np.uint32)
+        data = np.zeros((len(flat_wav), 4), dtype=np.uint8)
 
-        # Convert int32 to RGBA format
-        # Note: The conversion assumes that the audio samples are in the range of int32.
-        for sample in range(length):
-            data[sample][0] = ((flat_wav[sample] >> 24) & 0xFF) + (128 if flat_wav[sample] >= 0 else -128)
-            data[sample][1] = (flat_wav[sample] >> 16) & 0xFF
-            data[sample][2] = (flat_wav[sample] >> 8) & 0xFF
-            data[sample][3] = (flat_wav[sample] >> 0) & 0xFF
+        data[:, 0] = (flat_wav >> 0) & 0xFF   # R
+        data[:, 1] = (flat_wav >> 8) & 0xFF   # G
+        data[:, 2] = (flat_wav >> 16) & 0xFF  # B
+        data[:, 3] = (flat_wav >> 24) & 0xFF  # A
+
         return data
 
     def bmp2wav(self, fromFile: str, toFile: str) -> str:
