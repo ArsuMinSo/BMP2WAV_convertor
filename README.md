@@ -96,12 +96,12 @@ Aplikace umožňuje převod rastrového obrázku ve formátu BMP na zvukový sou
 
 #### Parametry Příkazové Řádky
 ```bash
-python main.py --convert <vstup.bmp> <vystup.wav> [--show -s] [--show-with-axes -sx] [--test]
+py ./main.py --convert <vstup.bmp> <vystup.wav> [--show -s] [--show-with-axes -sx] [--test]
 ```
 
 #### Příklad Použití
 ```bash
-python main.py --convert ./content/media/bmp/1bit.bmp ./content/media/out/1bit.wav --show
+py ./main.py --convert ./content/media/bmp/1bit.bmp ./content/media/out/1bit.wav -s
 ```
 
 ---
@@ -116,7 +116,7 @@ Aplikace umožňuje převést zvukový soubor ve formátu WAV zpět na rastrový
 
 #### Parametry Příkazové Řádky
 ```bash
-python main.py --convert <vstup.wav> <vystup.bmp> [-c width height] [--show -s] [--show-with-axes -sx] [--test]
+py ./main.py --convert <vstup.wav> <vystup.bmp> [-c width height] [--show -s] [--show-with-axes -sx] [--test]
 ```
 
 #### Příklad Použití
