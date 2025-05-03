@@ -65,10 +65,10 @@ class WAVFormat:
 
             "Width BMP": int.from_bytes(file[-8:-4], byteorder="little")
             if file.find(b"Edat") != -1
-            else int(sqrt(int.from_bytes(file[40:44], byteorder="little", signed=True))),
+            else int(sqrt(int.from_bytes(file[40:44], byteorder="little", signed=True)/4)),
             "Height BMP": int.from_bytes(file[-4:], byteorder="little")
             if file.find(b"Edat") != -1
-            else int(sqrt(int.from_bytes(file[40:44], byteorder="little", signed=True))),
+            else int(sqrt(int.from_bytes(file[40:44], byteorder="little", signed=True)/4)),
         }
         return header
 

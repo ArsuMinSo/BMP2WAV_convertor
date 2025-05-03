@@ -22,33 +22,34 @@ class Convertor:
             np.ndarray: A flat array of audio samples in int32 format.
         """
         flat_pixels = flat_pixels.astype(np.uint8)
-        R = flat_pixels[:, 0].astype(np.uint32)
-        G = flat_pixels[:, 1].astype(np.uint32)
-        B = flat_pixels[:, 2].astype(np.uint32)
-        A = flat_pixels[:, 3].astype(np.uint32)
+        data = np.zeros((len(flat_pixels), 1), dtype=np.uint32)
 
-        packed = (A << 24) | (B << 16) | (G << 8) | R
-        return packed.astype(np.int32)
+        for i in range(len(flat_pixels)):
+            # Convert RGBA to int32
+            data[i, 0] = (flat_pixels[i, 3] & 0xFF) | \
+                        ((flat_pixels[i, 2] & 0xFF) << 8) | \
+                        ((flat_pixels[i, 1] & 0xFF) << 16) | \
+                        ((flat_pixels[i, 0] & 0xFF) << 24)
 
+        # Reshape to 1D array of int32
+        data = data.reshape(-1)
+        return data.astype(np.int32)
 
     def convert_wavnp_to_bmpnp(self, flat_wav):
         """
         Converts a flat array of audio samples (int32) to a flat array of pixel data (RGBA).
-        Parameters:
-            flat_wav (np.ndarray): A flat array of audio samples in int32 format.
-
-        Returns:
-            np.ndarray: A flat array of pixel data in RGBA format (shape: [N, 4]).
         """
-        flat_wav = flat_wav.astype(np.uint32)
+        flat_wav = flat_wav.view(np.uint32)
         data = np.zeros((len(flat_wav), 4), dtype=np.uint8)
 
-        data[:, 0] = (flat_wav >> 0) & 0xFF   # R
-        data[:, 1] = (flat_wav >> 8) & 0xFF   # G
-        data[:, 2] = (flat_wav >> 16) & 0xFF  # B
-        data[:, 3] = (flat_wav >> 24) & 0xFF  # A
+        for i in range(len(flat_wav)):
+            # Convert int32 to RGBA
+            data[i, 3] = flat_wav[i] & 0xFF
+            data[i, 2] = (flat_wav[i] >> 8) & 0xFF
+            data[i, 1] = (flat_wav[i] >> 16) & 0xFF
+            data[i, 0] = (flat_wav[i] >> 24) & 0xFF
 
-        return data
+        return data.astype(np.int32)
 
     def bmp2wav(self, fromFile: str, toFile: str) -> str:
         """

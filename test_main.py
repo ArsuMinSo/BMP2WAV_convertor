@@ -1,7 +1,6 @@
 import subprocess
 import os
 
-
 # Vytvoření testovací složky pro výstupní soubory
 if not os.path.exists("./content/media/out/test/"):
     os.makedirs("./content/media/out/test/", exist_ok=True)
@@ -86,9 +85,6 @@ def test_wav_to_bmp():
     assert result.returncode == 0, f"Failed to convert WAV to BMP: {result.stderr}"
     assert os.path.exists("./content/media/out/test/wav_to_bmp.bmp"), "BMP file was not created"
 
-
-
-
 def test_generate_random_bmp_show():
     result = subprocess.run(
         ["python", "main.py", "--generate-bmp", "100", "100", "./content/media/out/test/random_bmp.bmp", "-s", "--test"],
@@ -97,7 +93,6 @@ def test_generate_random_bmp_show():
     )
     assert result.returncode == 0, f"Failed to generate BMP: {result.stderr}"
     assert os.path.exists("./content/media/out/test/random_bmp.bmp") and os.path.exists("./content/media/out/test_mode/display_bmp_output.png"), "Random BMP file was not created"
-
 
 def test_generate_random_bmp_show_axes():
     result = subprocess.run(
@@ -126,7 +121,6 @@ def test_convert_wav_to_bmp_and_display():
     assert result.returncode == 0, f"Failed to convert WAV to BMP: {result.stderr}"
     assert os.path.exists("./content/media/out/test/wav2bmp.bmp") and os.path.exists("./content/media/out/test_mode/display_bmp_output.png"), "BMP file was not created"
 
-
 def test_convert_bmp_to_wav_show_axes():
     result = subprocess.run(
         ["python", "main.py", "--convert", "./content/media/bmp/24bit.bmp", "./content/media/out/test/bmp2wav.wav", "-s", "--test"],
@@ -153,7 +147,6 @@ def test_show_existing_bmp_with_axes():
     )
     assert result.returncode == 0, f"Failed to show BMP with axes: {result.stderr}"
     assert os.path.exists("./content/media/out/test_mode/display_bmp_output.png"), "BMP display with axes was not generated"
-
 
 if __name__ == "__main__":
     # Spusť všechny testy
