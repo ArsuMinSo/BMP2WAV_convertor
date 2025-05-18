@@ -1,141 +1,176 @@
-# BMP2WAV Convertor
+# BMP2WAV Converter
 
-## Funkce Převodníku
+## Converter Features
 
-Funkce, které aplikace poskytuje, a technologické schopnosti, které umožňují obousměrný převod mezi obrazovými a zvukovými daty, jejich generování a vizualizaci.
+Functions provided by the application and the technological capabilities that enable bidirectional conversion between image and sound data, their generation, and visualization.
 
-### Generace Náhodného Obrázku
+---
 
-Aplikace umožňuje generovat náhodné rastrové obrázky ve formátu BMP s definovanou šířkou a výškou.
+### Random Image Generation
 
-#### Vlastnosti
-- Rozlišení obrázku je zadáváno uživatelem pomocí šířky a výšky v pixelech.
-- Barevné složky (R, G, B) jsou generovány nezávisle pro každý pixel.
-- Formát výstupu je 24bitový nekomprimovaný BMP.
-- Použití: Výstupní obrázek může sloužit jako vstup pro převod na WAV nebo jako testovací soubor.
+The application allows you to generate random raster BMP images with a defined width and height.
 
-#### Parametry Příkazové Řádky
+![Example Image](./content/img/generate_random_pic.png)
+
+#### Features
+
+* The resolution is defined by the user using width and height in pixels.
+* Color components (R, G, B) are generated independently for each pixel.
+* Output format is 24-bit uncompressed BMP.
+* Usage: The output image can be used as input for conversion to WAV or as a test file.
+
+#### Command Line Parameters
+
 ```bash
-py ./main.py -gb <sirka> <vyska> <vystupni_cesta> [--show -s] [--show-with-axes -sx] [--test]
+py ./main.py -gb <width> <height> <output_path> [--show -s] [--show-with-axes -sx] [--test]
 ```
 
-#### Volitelné Přepínače
-- `-s`: Zobrazí vygenerovaný obrázek.
-- `-sx`: Zobrazí obrázek s osami.
-- `--test`: Uloží zobrazení do testovací složky.
+#### Optional Flags
 
-#### Příklad Použití
+* `-s`: Display the generated image.
+* `-sx`: Display the image with axes.
+* `--test`: Save the preview to the test folder.
+
+#### Example Usage
+
 ```bash
 py ./main.py -gb 100 100 ./content/media/out/random.bmp -s
 ```
 
 ---
 
-### Generace Náhodného Zvuku
+### Random Sound Generation
 
-Aplikace umožňuje generovat náhodný zvukový signál ve formátu WAV.
+The application allows you to generate a random WAV sound signal.
 
-#### Vlastnosti
-- Délka zvuku je zadána uživatelem v počtu vzorků.
-- Vzorkovací frekvence: 44 100 Hz.
-- Počet kanálů: 1 (mono).
-- Bitová hloubka: 32 bitů na vzorek.
-- Formát výstupu: WAV PCM (nekomprimovaný).
+![Random Waveform Example](./content/img/generate_random_wav.png)
 
-#### Parametry Příkazové Řádky
+#### Features
+
+* The duration is defined by the number of samples.
+* Sampling rate: 44,100 Hz.
+* Number of channels: 1 (mono).
+* Bit depth: 32-bit per sample.
+* Output format: WAV PCM (uncompressed).
+
+#### Command Line Parameters
+
 ```bash
-py ./main.py -gw <pocet_vzorku> <vystupni_cesta> [--show -s] [--show-with-axes -sx] [--test]
+py ./main.py -gw <samples> <output_path> [--show -s] [--show-with-axes -sx] [--test]
 ```
 
-#### Volitelné Přepínače
-- `-s`: Zobrazí zvukovou vlnu.
-- `-sx`: Zobrazí zvukovou vlnu s osami.
-- `--test`: Uloží zobrazení do testovací složky.
+#### Optional Flags
 
-#### Příklad Použití
+* `-s`: Display the waveform.
+* `-sx`: Display the waveform with axes.
+* `--test`: Save the preview to the test folder.
+
+#### Example Usage
+
 ```bash
 py ./main.py -gw 1000 ./content/media/out/random_wave.wav -s
 ```
 
 ---
 
-### Generace Sinusového Signálu
+### Sine Wave Generation
 
-Aplikace umožňuje vytvořit čistý sinusový signál ve formátu WAV.
+The application can generate a pure sine wave signal in WAV format.
 
-#### Vlastnosti
-- Frekvence signálu: Uživatelsky definovatelná.
-- Vzorkovací frekvence: 44 100 Hz.
-- Počet vzorků: Uživatelsky definovatelný.
-- Počet kanálů: 1 (mono).
-- Bitová hloubka: 32 bitů na vzorek.
-- Formát výstupu: WAV PCM (nekomprimovaný).
+![Sine Waveform Example](./content/img/generate_sin.png)
 
-#### Parametry Příkazové Řádky
+#### Features
+
+* Frequency is user-defined.
+* Sampling rate: 44,100 Hz.
+* Number of samples: user-defined.
+* Channels: 1 (mono).
+* Bit depth: 32-bit per sample.
+* Output format: WAV PCM (uncompressed).
+
+#### Command Line Parameters
+
 ```bash
-py ./main.py -gw <pocet_vzorku> <vystupni_cesta> -f <frekvence> [--show -s] [--show-with-axes -sx] [--test]
+py ./main.py -gw <samples> <output_path> -f <frequency> [--show -s] [--show-with-axes -sx] [--test]
 ```
 
-#### Příklad Použití
+#### Example Usage
+
 ```bash
 py ./main.py -gw 1000 ./content/media/out/sine_wave.wav -f 440 -s
 ```
 
 ---
 
-### Převod BMP na WAV
+### BMP to WAV Conversion
 
-Aplikace umožňuje převod rastrového obrázku ve formátu BMP na zvukový soubor WAV.
+The application supports conversion from BMP raster images to WAV audio files.
 
-#### Vlastnosti
-- Podporované BMP formáty: 1bit, 4bit, 8bit, 24bit.
-- Výstupní WAV:
-   - Vzorkovací frekvence: 44 100 Hz.
-   - Hloubka: 32 bitů.
-   - Mono.
+![BMP to WAV Example](./content/img/bmp2wav_QR.png)
 
-#### Parametry Příkazové Řádky
+#### Features
+
+* Supported BMP formats: 1-bit, 4-bit, 8-bit, 24-bit.
+* Output WAV:
+
+  * Sampling rate: 44,100 Hz.
+  * Bit depth: 32-bit.
+  * Mono.
+
+#### Command Line Parameters
+
 ```bash
-py ./main.py --convert <vstup.bmp> <vystup.wav> [--show -s] [--show-with-axes -sx] [--test]
+py ./main.py --convert <input.bmp> <output.wav> [--show -s] [--show-with-axes -sx] [--test]
 ```
 
-#### Příklad Použití
+#### Example Usage
+
 ```bash
 py ./main.py --convert ./content/media/bmp/1bit.bmp ./content/media/out/1bit.wav -s
 ```
 
 ---
 
-### Převod WAV na BMP
+### WAV to BMP Conversion
 
-Aplikace umožňuje převést zvukový soubor ve formátu WAV zpět na rastrový obrázek BMP.
+The application allows converting WAV audio files back into BMP raster images.
 
-#### Vlastnosti
-- Převod amplitud zpět na RGB hodnoty.
-- Rekonstrukce původního rozměru obrázku.
+![WAV to BMP Example](./content/img/wav2bmp_QR.png)
 
-#### Parametry Příkazové Řádky
+#### Features
+
+* Converts amplitude values back to RGB pixel values.
+* Reconstructs the original image resolution.
+
+#### Command Line Parameters
+
 ```bash
-py ./main.py --convert <vstup.wav> <vystup.bmp> [-c width height] [--show -s] [--show-with-axes -sx] [--test]
+py ./main.py --convert <input.wav> <output.bmp> [-c width height] [--show -s] [--show-with-axes -sx] [--test]
 ```
 
-#### Příklad Použití
+#### Example Usage
+
 ```bash
 py ./main.py --convert ./content/media/out/1bit.wav ./content/media/out/1bit.bmp -s
 ```
 
 ---
 
-### Zobrazování Dat Souborů
+### File Data Visualization
 
-Aplikace umožňuje vizualizaci dat z WAV a BMP souborů.
+The application allows visualizing data from WAV and BMP files.
 
-#### Parametry Příkazové Řádky
+![Visualization Example](./content/img/show_info_1.png)
+![Visualization Example](./content/img/show_info_2.png)
+
+#### Command Line Parameters
+
 ```bash
-py ./main.py -i <soubor.wav nebo soubor.bmp> [--show -s] [--show-with-axes -sx] [--test]
+py ./main.py -i <file.wav or file.bmp> [--show -s] [--show-with-axes -sx] [--test]
 ```
 
-#### Příklad Použití
+#### Example Usage
+
 ```bash
 py ./main.py -i ./content/media/bmp/24bit.bmp -s
 ```
